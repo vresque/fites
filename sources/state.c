@@ -1,8 +1,12 @@
 #include <fites/state.h>
 
-static struct state state = {0};
+static struct state _state = {0};
 
-
-void waste() {
-    (void)state;
+struct state* state_w() {
+    return &_state;
 }
+
+struct state state_r() {
+    return _state;
+}
+

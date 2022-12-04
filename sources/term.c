@@ -32,10 +32,10 @@ void get_window_size() {
 
     if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1 || ws.ws_col == 0) {
         if (write(STDOUT_FILENO, "\x1b[999C\x1b[999B", 12) != 12)         die("failed to get window size (get_window_size)");
-        get_cursor_position(&state.rows, &state.cols);
+        get_cursor_position(&state_w()->rows, &state_w()->cols);
     } else {
-        state.cols = ws.ws_col;
-        state.rows = ws.ws_row;
+        state_w()->cols = ws.ws_col;
+        state_w()->rows = ws.ws_row;
     }
 }
 
@@ -43,8 +43,8 @@ void enable_raw_mode() {
     struct termios raw;
 
     atexit(disable_raw_mode);
-    if (tcgetattr(STDIN_FILENO, &state.terminal) == -1) die("failed to tcgetattr (enable_raw_mode)");
-    raw = state.terminal;
+    if (tcgetattr(STDIN_FILENO, &state_w()->terminal) == -1) die("failed to tcgetattr (enable_raw_mode)");
+    raw = state_w()->terminal;
     raw.c_iflag &= ~(IXON | ICRNL | BRKINT | INPCK | ISTRIP);
     raw.c_oflag &= ~(OPOST);
     raw.c_cflag |= (CS8);
@@ -56,7 +56,7 @@ void enable_raw_mode() {
 }
 
 void disable_raw_mode() {
-    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &state.terminal) == -1) die("failed to tcsetattr (disable_raw_mode)");
+    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &state_w()->terminal) == -1) die("failed to tcsetattr (disable_raw_mode)");
 }
 
 /* editor draw loop*/
@@ -68,14 +68,15 @@ void term_reset() {
     write(STDOUT_FILENO, "\x1b[H", 3);
 }
 
+
 void draw_row(int row, struct buffer* buf) {
-    if (row == state.rows / 3) {
+    if (row == state_r().rows / 3) {
         char welcome[80];
 
-        int length = snprintf(welcome, sizeof(welcome), "Fites v%s - The fast, interactive and trusty editing software", VERSION);
-        if (length > state.cols) length = state.cols;
+        int length = snprintf(welcome, sizeof(welcome), "Fites v%s - The fast, interactive, and trusty editing software", VERSION);
+        if (length > state_r().cols) length = state_w()->cols;
 
-        int padding = (state.cols - length) / 2;
+        int padding = (state_r().cols - length) / 2;
         if (padding) {
             buffer_append(buf, "~", 1);
             padding--;
@@ -91,12 +92,12 @@ void draw_row(int row, struct buffer* buf) {
 
 void term_draw_rows(struct buffer* buf) {
     int row;
-    for (row = 0; row < state.rows; row++) {
+    for (row = 0; row < state_r().rows; row++) {
         draw_row(row, buf);        
         
        // clear line
         buffer_append(buf, "\x1b[K", 3);
-        if (row < state.rows - 1) {
+        if (row < state_r().rows - 1) {
             buffer_append(buf, "\r\n", 2);
         }
     }
@@ -104,7 +105,7 @@ void term_draw_rows(struct buffer* buf) {
 
 void draw_cursor(struct buffer* buffer) {
     char buf[32];
-    snprintf(buf, sizeof(buf), "\x1b[%d;%dH", state.cursor_y + 1, state.cursor_x + 1);
+    snprintf(buf, sizeof(buf), "\x1b[%d;%dH", state_r().cursor_y + 1, state_r().cursor_x + 1);
     buffer_append(buffer, buf, strlen(buf));
 }
 

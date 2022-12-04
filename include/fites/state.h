@@ -12,7 +12,7 @@ struct state {
     int cursor_y;
 };
 
-static struct state state;
-
+struct state* state_w();
+struct state state_r();
 
 #endif

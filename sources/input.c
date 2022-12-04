@@ -44,8 +44,8 @@ char input_read_key() {
                 #ifdef USE_ARROW_KEYS
                 case 'A': return KEY_MOVE_UP;
                 case 'B': return KEY_MOVE_DOWN;
-                case 'C': return KEY_MOVE_LEFT;
-                case 'D': return KEY_MOVE_RIGHT;
+                case 'C': return KEY_MOVE_RIGHT;
+                case 'D': return KEY_MOVE_LEFT;
                 #endif
                 #ifdef USE_HOME_END
                 case 'H': return KEY_GO_TO_START_OF_LINE;
@@ -79,38 +79,38 @@ void input_handle_exec_command(char key) {
 void input_handle_movement(char key) {
     switch (key) {
         case KEY_MOVE_LEFT:
-            if (state.cursor_x != 0) {
-                state.cursor_x--;
+            if (state_r().cursor_x != 0) {
+                state_w()->cursor_x--;
             }
             break;
         case KEY_MOVE_RIGHT:
-            if (state.cursor_x != state.cols - 1) {
-                state.cursor_x++;
+            if (state_r().cursor_x != state_r().cols - 1) {
+                state_w()->cursor_x++;
             }
             break;
         case KEY_MOVE_UP:
-            if (state.cursor_y != 0) {
-                state.cursor_y--;
+            if (state_r().cursor_y != 0) {
+                state_w()->cursor_y--;
             }
             break;
         case KEY_MOVE_DOWN:
-            if (state.cursor_y != state.rows - 1) {
-                state.cursor_y++;
+            if (state_r().cursor_y != state_r().rows - 1) {
+                state_w()->cursor_y++;
             }
             break;
         case KEY_GO_TO_END_OF_FILE:
         case KEY_GO_TO_START_OF_FILE: {
-            int how_much = state.rows;
+            int how_much = state_r().rows;
             while (how_much--) {
                 input_handle_movement(key == KEY_GO_TO_START_OF_FILE ? KEY_MOVE_UP : KEY_MOVE_DOWN);
             }
             break;
         }
         case KEY_GO_TO_START_OF_LINE:
-            state.cursor_x = 0;
+            state_w()->cursor_x = 0;
             break;
         case KEY_GO_TO_END_OF_LINE:
-            state.cursor_x = state.cols - 1;
+            state_w()->cursor_x = state_r().cols - 1;
             break;
     }
 }
@@ -131,8 +131,7 @@ void input_handle_no_mode_selected(char key) {
 }
 
 void input_process_keypress(char key) {
-    printf("%d", state.cursor_x);
-    switch (state.last_key) {
+    switch (state_r().last_key) {
         case KEY_EXEC:
             input_handle_exec_command(key);
             break;
@@ -140,7 +139,8 @@ void input_process_keypress(char key) {
             input_handle_no_mode_selected(key);
             break;
     }
-    state.last_key = key;
+    state_w()->last_key = key;
+    return;
 }
 
 void input_loop() {

@@ -3,8 +3,8 @@
 #include <fites/input.h>
 
 void main_loop() {
-    state.cursor_x = 0;
-    state.cursor_y = 0;
+    state_w()->cursor_x = 0;
+    state_w()->cursor_y = 0;
     get_window_size();
     while (true) {
         term_loop();
