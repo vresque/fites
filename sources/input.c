@@ -1,0 +1,150 @@
+#include <fites/input.h>
+#include <fites/term.h>
+
+
+char input_read_key() {
+    int read_amount;
+    char key;
+
+    while ((read_amount = read(STDIN_FILENO, &key, 1)) != 1) {
+        if (read_amount == -1 && errno != EAGAIN) die("failed to read (input_read_key)");
+    }
+
+    if (key == '\x1b') {
+        char sequence[3];
+        if (read(STDIN_FILENO, &sequence[0], 1) != 1) return '\x1b';
+        if (read(STDIN_FILENO, &sequence[1], 1) != 1) return '\x1b';
+
+        if (sequence[0] == '[') {
+            
+            if (sequence[1] >= '0' && sequence[1] <= '9') {
+                if (read(STDIN_FILENO, &sequence[2], 1) != 1) return '\x1b';
+                if (sequence[2] == '~') {
+                    switch (sequence[1]) {
+                        #ifdef USE_PAGE_UP_PAGE_DOWN
+                        case '5': return KEY_GO_TO_START_OF_FILE;
+                        case '6': return KEY_GO_TO_END_OF_FILE;
+                        #endif
+                        #ifdef USE_HOME_END
+                        case '1':
+                        case '7':
+                            return KEY_GO_TO_START_OF_LINE;
+                        case '4':
+                        case '8':
+                            return KEY_GO_TO_END_OF_LINE;
+                        #endif
+                        case '3': return KEY_DELETE;
+
+                        default: break;
+                    }
+                }
+            } else {
+            // catch arrow keys
+            switch(sequence[1]) {
+                #ifdef USE_ARROW_KEYS
+                case 'A': return KEY_MOVE_UP;
+                case 'B': return KEY_MOVE_DOWN;
+                case 'C': return KEY_MOVE_LEFT;
+                case 'D': return KEY_MOVE_RIGHT;
+                #endif
+                #ifdef USE_HOME_END
+                case 'H': return KEY_GO_TO_START_OF_LINE;
+                case 'F': return KEY_GO_TO_END_OF_LINE;
+                #endif
+            }
+            
+            }
+        } else if (sequence[0] == 'O') {
+            #ifdef USE_HOME_END
+            switch (sequence[1]) {
+                case 'H': return KEY_GO_TO_START_OF_LINE;
+                case 'F': return KEY_GO_TO_END_OF_LINE;
+            }
+            #endif
+        }
+    }
+
+    return key;
+}
+
+void input_handle_exec_command(char key) {
+    switch (key) {
+        case KEY_QUIT:
+            term_reset();
+            exit(0);
+            break;
+    }
+}
+
+void input_handle_movement(char key) {
+    switch (key) {
+        case KEY_MOVE_LEFT:
+            if (state.cursor_x != 0) {
+                state.cursor_x--;
+            }
+            break;
+        case KEY_MOVE_RIGHT:
+            if (state.cursor_x != state.cols - 1) {
+                state.cursor_x++;
+            }
+            break;
+        case KEY_MOVE_UP:
+            if (state.cursor_y != 0) {
+                state.cursor_y--;
+            }
+            break;
+        case KEY_MOVE_DOWN:
+            if (state.cursor_y != state.rows - 1) {
+                state.cursor_y++;
+            }
+            break;
+        case KEY_GO_TO_END_OF_FILE:
+        case KEY_GO_TO_START_OF_FILE: {
+            int how_much = state.rows;
+            while (how_much--) {
+                input_handle_movement(key == KEY_GO_TO_START_OF_FILE ? KEY_MOVE_UP : KEY_MOVE_DOWN);
+            }
+            break;
+        }
+        case KEY_GO_TO_START_OF_LINE:
+            state.cursor_x = 0;
+            break;
+        case KEY_GO_TO_END_OF_LINE:
+            state.cursor_x = state.cols - 1;
+            break;
+    }
+}
+
+void input_handle_no_mode_selected(char key) {
+    switch (key) {
+        case KEY_MOVE_DOWN:
+        case KEY_MOVE_UP:
+        case KEY_MOVE_LEFT:
+        case KEY_MOVE_RIGHT:
+        case KEY_GO_TO_END_OF_FILE:
+        case KEY_GO_TO_START_OF_FILE:
+        case KEY_GO_TO_START_OF_LINE:
+        case KEY_GO_TO_END_OF_LINE:
+            input_handle_movement(key);
+            break;
+    }
+}
+
+void input_process_keypress(char key) {
+    printf("%d", state.cursor_x);
+    switch (state.last_key) {
+        case KEY_EXEC:
+            input_handle_exec_command(key);
+            break;
+        default:
+            input_handle_no_mode_selected(key);
+            break;
+    }
+    state.last_key = key;
+}
+
+void input_loop() {
+    char in = input_read_key();
+
+    input_process_keypress(in);
+}
