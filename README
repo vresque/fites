@@ -1,0 +1,6 @@
+Fites - The fast, interactive, and trusty editing software
+
+Features:
+    * Full keyboard layout customization (via config.h)
+    * Support for custom colour schemes (via config.h)
+    * Add syntax support for your own language (via languages.h)
