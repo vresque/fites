@@ -4,7 +4,8 @@
 
 // misc ------------------------
 #define TAB_SIZE 8
-
+// time after which a message disappears
+#define MESSAGE_TIMEOUT 5
 
 // options ---------------------
 // uncomment to disable
@@ -25,7 +26,8 @@
 #define KEY_GO_TO_END_OF_LINE CONTROL('t')
 #define KEY_GO_TO_START_OF_LINE CONTROL('r')
 
-#define KEY_JUMP_DOWN_ONE_PAGE MOD('g')
+#define KEY_JUMP_UP_ONE_PAGE ALT('g')
+#define KEY_JUMP_DOWN_ONE_PAGE ALT('h')
 
 
 // exec -------------------------

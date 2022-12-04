@@ -24,8 +24,8 @@ int input_read_key() {
                 if (sequence[2] == '~') {
                     switch (sequence[1]) {
                         #ifdef USE_PAGE_UP_PAGE_DOWN
-                        case '5': return KEY_GO_TO_START_OF_FILE;
-                        case '6': return KEY_GO_TO_END_OF_FILE;
+                        case '5': return KEY_JUMP_UP_ONE_PAGE;
+                        case '6': return KEY_JUMP_DOWN_ONE_PAGE;
                         #endif
                         #ifdef USE_HOME_END
                         case '1':
@@ -80,7 +80,7 @@ void input_handle_exec_command(int key) {
 
 void check_if_cursor_x_not_too_big(int index) {
     struct text_row* current = (index >= state_r().text_row_count) ? NULL : &state_w()->text[index];
-    if (!current) die("invalid row selected (check_if_cursor_x_not_too_big)");
+    if (!current) return;
     if (current->size < state_r().cursor_x) {
         state_w()->cursor_x = current->size;
     }
@@ -127,6 +127,22 @@ void input_handle_movement(int key) {
             state_w()->cursor_x = 0;
             break;
         }
+        case KEY_JUMP_UP_ONE_PAGE:
+        case KEY_JUMP_DOWN_ONE_PAGE: {
+            if (key == KEY_JUMP_UP_ONE_PAGE) {
+                state_w()->cursor_y = state_r().row_offset;
+            } else {
+                state_w()->cursor_y = state_r().row_offset + state_r().rows - 1;
+                if (state_r().cursor_y > state_r().text_row_count) state_w()->cursor_y = state_r().text_row_count;
+            }
+
+            int how_much = state_r().rows;
+            while (how_much--) {
+                input_handle_movement(key == KEY_JUMP_UP_ONE_PAGE ? KEY_MOVE_UP : KEY_MOVE_DOWN);
+            }
+            break;
+        }
+
         case KEY_GO_TO_START_OF_LINE:
             state_w()->cursor_x = 0;
             break;
@@ -146,6 +162,8 @@ void input_handle_no_mode_selected(int key) {
         case KEY_GO_TO_START_OF_FILE:
         case KEY_GO_TO_START_OF_LINE:
         case KEY_GO_TO_END_OF_LINE:
+        case KEY_JUMP_UP_ONE_PAGE:
+        case KEY_JUMP_DOWN_ONE_PAGE:
             input_handle_movement(key);
             break;
     }

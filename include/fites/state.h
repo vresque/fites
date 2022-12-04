@@ -2,7 +2,7 @@
 #define STATE_H
 #include <termios.h>
 #include "text.h"
-
+#include <time.h>
 
 struct state {
     struct termios terminal;
@@ -16,6 +16,9 @@ struct state {
     int row_offset;
     int col_offset;
     int rendered_x;
+    char* filename;
+    char status[80];
+    time_t status_time;
 };
 
 void state_init();

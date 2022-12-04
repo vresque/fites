@@ -13,7 +13,10 @@ void state_init() {
     state->text = NULL;
     state->row_offset = 0;
     state->col_offset = 0;
+    state->filename = NULL;
     state->rendered_x = 0;
+    state->status[0] = '\0';
+    state->status_time = 0;
 }
 
 

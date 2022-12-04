@@ -79,6 +79,39 @@ void term_reset() {
 	write(STDOUT_FILENO, "\x1b[H", 3);
 }
 
+void term_draw_message_bar(struct buffer* buf) {
+	buffer_append(buf, "\x1b[K", 3);
+	int msglen = strlen(state_r().status);
+	if (msglen > state_r().cols) msglen = state_r().cols;
+	if (msglen && time(NULL) - state_r().status_time < MESSAGE_TIMEOUT) {
+		buffer_append(buf, state_w()->status, msglen);
+	}
+}
+
+void term_draw_status_bar(struct buffer* buf) {
+	buffer_append(buf, "\x1b[7m", 4);
+	char status[80];
+	int len = snprintf(status, sizeof(status), "%.20s; at l%d/%d, c%d/%d",
+		state_r().filename ? state_r().filename : "[No Name]",
+		state_r().cursor_y + 1, state_r().text_row_count + 1,
+		state_r().cursor_x + 1, state_r().text[state_r().cursor_y].size + 1
+	);
+	if (len > state_r().cols) len = state_r().cols;
+	int index = 0;
+	while (index < state_r().cols) {
+		if (state_r().cols - index == len + 2 ) {
+			buffer_append(buf, status, len);
+			buffer_append(buf, "  ", 2);
+			break;
+		} else {
+			buffer_append(buf, " ", 1);
+			index++;
+		}
+	}
+	buffer_append(buf, "\x1b[m", 3);
+	buffer_append(buf, "\r\n", 2);
+}
+
 void draw_empty_row(int row, struct buffer* buf) {
 		if (state_r().text_row_count == 0 && row == state_r().rows / 3) {
 		char welcome[80];
@@ -123,9 +156,7 @@ void term_draw_rows(struct buffer* buf) {
 		draw_row(row, buf);        
 		// clear line
 		buffer_append(buf, "\x1b[K", 3);
-		if (row < state_r().rows - 1) {
-			buffer_append(buf, "\r\n", 2);
-		}
+		buffer_append(buf, "\r\n", 2);
 	}
 }
 
@@ -167,6 +198,8 @@ void term_loop() {
 	buffer_append(&buffer, "\x1b[H", 3);
 
 	term_draw_rows(&buffer);
+	term_draw_status_bar(&buffer);
+	term_draw_message_bar(&buffer);
 
 	// show cursor
 	draw_cursor(&buffer);

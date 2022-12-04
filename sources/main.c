@@ -4,6 +4,8 @@
 
 void main_loop() {
     get_window_size();
+    state_w()->rows -= 2;
+    editor_set_status("Hello, World!");
     while (true) {
         term_loop();
         input_loop();

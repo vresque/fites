@@ -1,6 +1,15 @@
 #include <fites/editor.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+void editor_set_status(const char* fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    vsnprintf(state_w()->status, sizeof(state_r().status), fmt, ap);
+    va_end(ap);
+    state_w()->status_time = time(NULL);
+}
 
 void editor_update_row(struct text_row* row) {
     int j = 0;
@@ -44,6 +53,11 @@ void editor_push_row(char* content, size_t len) {
 }
 
 void editor_open(char* path) {
+    free(state_w()->filename);
+    state_w()->filename = strdup(path);
+
+
+
     FILE* file = fopen(path, "r");
     if (!file) die("file does not exist");
 
