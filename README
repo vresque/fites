@@ -4,3 +4,7 @@ Features:
     * Full keyboard layout customization (via config.h)
     * Support for custom colour schemes (via config.h)
     * Add syntax support for your own language (via languages.h)
+
+Credits:
+    * Most of the core logic is taken from this blog: https://viewsourcecode.org/snaptoken/kilo
+      So, you may imagine this project as the kilo editor if it had taken enough steroids to wipe out Austria's population

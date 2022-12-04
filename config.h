@@ -33,8 +33,9 @@
 // exec -------------------------
 #define KEY_EXEC CONTROL('x')
 #define KEY_QUIT CONTROL('q')
+#define KEY_SAVE CONTROL('s')
 
 
 // editing
 #define KEY_EDIT CONTROL('e')
-#define KEY_DELETE CONTROL('d')
+#define KEY_DELETE CONTROL('b')

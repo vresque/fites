@@ -15,10 +15,6 @@
 
 #define UNUSED(var) ((void)(var));
 
-typedef _Bool bool;
-#define true 1
-#define false 0
-
 
 void die(const char* msg);
 #endif

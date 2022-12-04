@@ -2,7 +2,6 @@
 #include <sys/ioctl.h>
 #include <fites/input.h>
 
-
 void get_cursor_position(int* rows, int* cols) {
 	UNUSED(rows)
 	UNUSED(cols)
@@ -91,8 +90,9 @@ void term_draw_message_bar(struct buffer* buf) {
 void term_draw_status_bar(struct buffer* buf) {
 	buffer_append(buf, "\x1b[7m", 4);
 	char status[80];
-	int len = snprintf(status, sizeof(status), "%.20s; at l%d/%d, c%d/%d",
+	int len = snprintf(status, sizeof(status), "%.20s%s; at l%d/%d, c%d/%d;",
 		state_r().filename ? state_r().filename : "[No Name]",
+		state_r().buffer_is_dirty ? " (modified) " : "",
 		state_r().cursor_y + 1, state_r().text_row_count + 1,
 		state_r().cursor_x + 1, state_r().text[state_r().cursor_y].size + 1
 	);

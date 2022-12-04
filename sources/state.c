@@ -17,6 +17,7 @@ void state_init() {
     state->rendered_x = 0;
     state->status[0] = '\0';
     state->status_time = 0;
+    state->buffer_is_dirty = 0;
 }
 
 

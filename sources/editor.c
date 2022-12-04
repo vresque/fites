@@ -1,7 +1,46 @@
 #include <fites/editor.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <ctype.h>
 #include <stdlib.h>
+#include <fcntl.h>
+
+void editor_save() {
+    if (state_r().filename == NULL) return;
+
+    int len;
+    char* buf = text_rows_to_string(&len);
+
+    int fd = open(state_r().filename, O_RDWR | O_CREAT, 0644);
+
+    if (fd != -1) {
+        if (ftruncate(fd, len) != -1) {
+            if (write(fd, buf, len) != -1) {
+                close(fd);
+                free(buf);
+                editor_set_status("Saved %s; %d bytes written", state_r().filename, len);
+                return;
+            }
+        }
+        close(fd);
+    }
+    free(buf);
+    editor_set_status("Unable to save %s! I/O error: %s", state_r().filename, strerror(errno));
+    state_w()->buffer_is_dirty = 0;
+}
+void editor_insert_char(int chr) {
+    if (!(chr >= 0x20 && chr <= 0x7e)) return;
+
+
+    if (state_r().cursor_y == state_r().text_row_count) {
+        editor_push_row("", 0);
+    }
+    text_row_insert_char(&state_w()->text[state_r().cursor_y], state_r().cursor_x, chr);
+    state_w()->cursor_x++;
+    state_w()->buffer_is_dirty++;
+
+}
+
 
 void editor_set_status(const char* fmt, ...) {
     va_list ap;
@@ -50,6 +89,7 @@ void editor_push_row(char* content, size_t len) {
 
 
     state_w()->text_row_count++;
+    state_w()->buffer_is_dirty++;
 }
 
 void editor_open(char* path) {
@@ -59,7 +99,11 @@ void editor_open(char* path) {
 
 
     FILE* file = fopen(path, "r");
-    if (!file) die("file does not exist");
+    if (!file) {
+        file = fopen(path, "r");
+        editor_set_status("Created '%s' as it did not previously exist.", path);
+        if (!file) die("not able to open file");
+    }
 
     char* line = NULL;
     size_t cap = 0;
@@ -70,4 +114,6 @@ void editor_open(char* path) {
     }
     free(line);
     fclose(file);
+
+    state_w()->buffer_is_dirty = 0;
 }

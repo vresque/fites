@@ -69,11 +69,20 @@ int input_read_key() {
     return key;
 }
 
+static int quit_times = 2;
 void input_handle_exec_command(int key) {
     switch (key) {
         case KEY_QUIT:
+            if (state_r().buffer_is_dirty && quit_times > 0) {
+               editor_set_status("WARNING: You have %d unsaved changes. Press Ctrl-x Ctrl-q once more to quit.", state_r().buffer_is_dirty);
+               quit_times--;
+               return; 
+            }
             term_reset();
             exit(0);
+            break;
+        case KEY_SAVE:
+            editor_save();
             break;
     }
 }
@@ -165,6 +174,20 @@ void input_handle_no_mode_selected(int key) {
         case KEY_JUMP_UP_ONE_PAGE:
         case KEY_JUMP_DOWN_ONE_PAGE:
             input_handle_movement(key);
+            break;
+        case 127:            // backspace
+        case KEY_DELETE:
+            break;
+        case '\r':
+            // enter
+            break;
+        case CONTROL('l'):
+        case '\x1b':
+            break;
+        case KEY_EXEC:
+            break;
+        default:
+            editor_insert_char(key);
             break;
     }
 }

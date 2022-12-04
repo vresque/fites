@@ -3,6 +3,7 @@
 #include <termios.h>
 #include "text.h"
 #include <time.h>
+#include "bool.h"
 
 struct state {
     struct termios terminal;
@@ -19,6 +20,7 @@ struct state {
     char* filename;
     char status[80];
     time_t status_time;
+    int buffer_is_dirty;
 };
 
 void state_init();
