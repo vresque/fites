@@ -4,7 +4,7 @@
 
 int input_read_key() {
     int read_amount;
-    int key;
+    char key;
 
     while ((read_amount = read(STDIN_FILENO, &key, 1)) != 1) {
         if (read_amount == -1 && errno != EAGAIN) die("failed to read (input_read_key)");
@@ -15,12 +15,10 @@ int input_read_key() {
         if (read(STDIN_FILENO, &sequence[0], 1) != 1) return '\x1b';
         if (read(STDIN_FILENO, &sequence[1], 1) != 1) {
             return ALT(sequence[0]);
-            exit(0);
         }
 
 
         if (sequence[0] == '[') { 
-            exit(0);
             if (sequence[1] >= '0' && sequence[1] <= '9') {
                 if (read(STDIN_FILENO, &sequence[2], 1) != 1) return '\x1b';
                 if (sequence[2] == '~') {
@@ -168,8 +166,6 @@ void input_process_keypress(int key) {
 
 void input_loop() {
     int in = input_read_key();
-
-    if (in == ALT('x')) { exit(0); }
 
     input_process_keypress(in);
 }
