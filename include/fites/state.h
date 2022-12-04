@@ -1,6 +1,7 @@
 #ifndef STATE_H
 #define STATE_H
 #include <termios.h>
+#include "text.h"
 
 
 struct state {
@@ -10,8 +11,11 @@ struct state {
     int cols;
     int cursor_x;
     int cursor_y;
+    int text_row_count;
+    struct text_row* text;
 };
 
+void state_init();
 struct state* state_w();
 struct state state_r();
 

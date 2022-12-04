@@ -1,12 +1,19 @@
 #include <fites/state.h>
+#include <fites/fites.h>
 
-static struct state _state = {0};
+struct state* state;
+
+void state_init() {
+    state = malloc(sizeof(struct state));
+    if (!state) die("failed to allocate state");
+}
+
 
 struct state* state_w() {
-    return &_state;
+    return state;
 }
 
 struct state state_r() {
-    return _state;
+    return *state;
 }
 

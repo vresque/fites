@@ -1,5 +1,5 @@
-CC = clang
-LD = clang
+CC = gcc
+LD = gcc
 
 CFLAGS = -O3 -I./include -Wall -Wextra -pedantic -std=c2x -Werror
 LDFLAGS = 
@@ -7,6 +7,8 @@ LDFLAGS =
 SRCDIR := sources
 BUILD_DIR := build
 BOOTEFI := $(GNUEFI)/x86_64/bootloader/main.efi
+
+OUT = $(BUILD_DIR)/fites
 
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d))
 
@@ -23,4 +25,7 @@ $(BUILD_DIR)/%.o: $(SRCDIR)/%.c
 
 link:
 	@ echo Linking...
-	$(LD) $(LDFLAGS) -o $(BUILD_DIR)/fites $(OBJS)
+	$(LD) $(LDFLAGS) -o $(OUT) $(OBJS)
+
+clean:
+	rm $(OBJS) $(OUT)

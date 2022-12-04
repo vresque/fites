@@ -68,9 +68,8 @@ void term_reset() {
     write(STDOUT_FILENO, "\x1b[H", 3);
 }
 
-
-void draw_row(int row, struct buffer* buf) {
-    if (row == state_r().rows / 3) {
+void draw_empty_row(int row, struct buffer* buf) {
+        if (state_r().text_row_count == 0 && row == state_r().rows / 3) {
         char welcome[80];
 
         int length = snprintf(welcome, sizeof(welcome), "Fites v%s - The fast, interactive, and trusty editing software", VERSION);
@@ -87,6 +86,21 @@ void draw_row(int row, struct buffer* buf) {
         buffer_append(buf, welcome, length);
     } else {
         buffer_append(buf, "~", 1);
+    }
+}
+
+void draw_filled_row(int row, struct buffer* buf) {
+    int len = state_r().text[row].size;
+    if (len >= state_r().cols) len = state_r().cols;
+    buffer_append(buf, state_r().text[row].buffer, len);
+}
+
+
+void draw_row(int row, struct buffer* buf) {
+    if (row >= state_r().text_row_count) {
+        draw_empty_row(row, buf);
+    } else {
+        draw_filled_row(row, buf);
     }
 }
 
