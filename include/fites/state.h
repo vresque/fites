@@ -6,7 +6,7 @@
 
 struct state {
     struct termios terminal;
-    char last_key;
+    int last_key;
     int rows;
     int cols;
     int cursor_x;
@@ -15,6 +15,7 @@ struct state {
     struct text_row* text;
     int row_offset;
     int col_offset;
+    int rendered_x;
 };
 
 void state_init();

@@ -2,6 +2,10 @@
 // use CONTROL(key) to express control
 // use MOD(key) to express the mod key
 
+// misc ------------------------
+#define TAB_SIZE 8
+
+
 // options ---------------------
 // uncomment to disable
 #define USE_ARROW_KEYS
@@ -20,6 +24,8 @@
 
 #define KEY_GO_TO_END_OF_LINE CONTROL('t')
 #define KEY_GO_TO_START_OF_LINE CONTROL('r')
+
+#define KEY_JUMP_DOWN_ONE_PAGE MOD('g')
 
 
 // exec -------------------------

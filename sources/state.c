@@ -13,7 +13,7 @@ void state_init() {
     state->text = NULL;
     state->row_offset = 0;
     state->col_offset = 0;
-
+    state->rendered_x = 0;
 }
 
 

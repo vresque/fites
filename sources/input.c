@@ -2,9 +2,9 @@
 #include <fites/term.h>
 
 
-char input_read_key() {
+int input_read_key() {
     int read_amount;
-    char key;
+    int key;
 
     while ((read_amount = read(STDIN_FILENO, &key, 1)) != 1) {
         if (read_amount == -1 && errno != EAGAIN) die("failed to read (input_read_key)");
@@ -13,10 +13,14 @@ char input_read_key() {
     if (key == '\x1b') {
         char sequence[3];
         if (read(STDIN_FILENO, &sequence[0], 1) != 1) return '\x1b';
-        if (read(STDIN_FILENO, &sequence[1], 1) != 1) return '\x1b';
+        if (read(STDIN_FILENO, &sequence[1], 1) != 1) {
+            return ALT(sequence[0]);
+            exit(0);
+        }
 
-        if (sequence[0] == '[') {
-            
+
+        if (sequence[0] == '[') { 
+            exit(0);
             if (sequence[1] >= '0' && sequence[1] <= '9') {
                 if (read(STDIN_FILENO, &sequence[2], 1) != 1) return '\x1b';
                 if (sequence[2] == '~') {
@@ -67,7 +71,7 @@ char input_read_key() {
     return key;
 }
 
-void input_handle_exec_command(char key) {
+void input_handle_exec_command(int key) {
     switch (key) {
         case KEY_QUIT:
             term_reset();
@@ -84,7 +88,7 @@ void check_if_cursor_x_not_too_big(int index) {
     }
 }
 
-void input_handle_movement(char key) {
+void input_handle_movement(int key) {
     struct text_row* current = (state_r().cursor_y >= state_r().text_row_count) ? NULL : &state_w()->text[state_r().cursor_y];
 
     switch (key) {
@@ -134,7 +138,7 @@ void input_handle_movement(char key) {
     }
 }
 
-void input_handle_no_mode_selected(char key) {
+void input_handle_no_mode_selected(int key) {
     switch (key) {
         case KEY_MOVE_DOWN:
         case KEY_MOVE_UP:
@@ -149,7 +153,7 @@ void input_handle_no_mode_selected(char key) {
     }
 }
 
-void input_process_keypress(char key) {
+void input_process_keypress(int key) {
     switch (state_r().last_key) {
         case KEY_EXEC:
             input_handle_exec_command(key);
@@ -163,7 +167,9 @@ void input_process_keypress(char key) {
 }
 
 void input_loop() {
-    char in = input_read_key();
+    int in = input_read_key();
+
+    if (in == ALT('x')) { exit(0); }
 
     input_process_keypress(in);
 }

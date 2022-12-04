@@ -2,6 +2,7 @@
 #define INPUT_H
 
 #define CONTROL(key) ((key) & 0x1f)
+#define ALT(key) ((key) + 128)
 
 #include <fites/fites.h>
 #include <ctype.h>
@@ -9,6 +10,6 @@
 
 
 void input_loop();
-char input_read_key();
+int input_read_key();
 
 #endif

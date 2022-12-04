@@ -2,6 +2,30 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+void editor_update_row(struct text_row* row) {
+    int j = 0;
+    int index = 0;
+    int tabs_rendered = 0;
+
+    for (j = 0; j < row->size; j++) {
+        if (row->buffer[j] == '\t') tabs_rendered++;
+    }
+
+    free(row->rendered);
+    row->rendered = malloc(row->size + (tabs_rendered * (TAB_SIZE - 1)) + 1);
+
+    for (j = 0; j < row->size; j++) {
+        if (row->buffer[j] == '\t') {
+            row->rendered[index++] = ' ';
+            while (index % TAB_SIZE != 0) row->rendered[index++] = ' ';
+        } else {
+            row->rendered[index++] = row->buffer[j];
+        }
+    }
+    row->rendered[index] = '\0';
+    row->rendered_size = index;
+}
+
 void editor_push_row(char* content, size_t len) {
     state_w()->text = realloc(state_w()->text, sizeof(struct text_row) * (state_r().text_row_count + 1));
 
@@ -13,6 +37,7 @@ void editor_push_row(char* content, size_t len) {
 
     state_w()->text[loc].rendered_size = 0;
     state_w()->text[loc].rendered = NULL;
+    editor_update_row(&state_w()->text[loc]);
 
 
     state_w()->text_row_count++;
