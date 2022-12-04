@@ -3,12 +3,6 @@
 #include <fites/input.h>
 
 void main_loop() {
-
-    state_w()->cursor_x = 0;
-    state_w()->cursor_y = 0;
-    state_w()->text_row_count = 0;
-    state_w()->text = NULL;
-
     get_window_size();
     while (true) {
         term_loop();
@@ -19,6 +13,7 @@ void main_loop() {
 
 int main(int argc, char** argv) {
     state_init();
+
     if (argc >= 2) {
         editor_open(argv[1]);
     }

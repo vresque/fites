@@ -10,6 +10,11 @@ void editor_push_row(char* content, size_t len) {
     state_w()->text[loc].buffer = malloc(len + 1);
     memcpy(state_w()->text[loc].buffer, content, len);
     state_w()->text[loc].buffer[len] = '\0';
+
+    state_w()->text[loc].rendered_size = 0;
+    state_w()->text[loc].rendered = NULL;
+
+
     state_w()->text_row_count++;
 }
 

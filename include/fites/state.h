@@ -13,6 +13,8 @@ struct state {
     int cursor_y;
     int text_row_count;
     struct text_row* text;
+    int row_offset;
+    int col_offset;
 };
 
 void state_init();

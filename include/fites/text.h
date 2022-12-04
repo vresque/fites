@@ -5,6 +5,8 @@
 struct text_row {
     int size;
     char* buffer;
+    int rendered_size;
+    char* rendered;
 };
 
 #endif

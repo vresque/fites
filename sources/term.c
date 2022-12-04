@@ -90,17 +90,19 @@ void draw_empty_row(int row, struct buffer* buf) {
 }
 
 void draw_filled_row(int row, struct buffer* buf) {
-    int len = state_r().text[row].size;
+    int len = state_r().text[row].size - state_r().col_offset;
+    if (len < 0) len = 0;
     if (len >= state_r().cols) len = state_r().cols;
-    buffer_append(buf, state_r().text[row].buffer, len);
+    buffer_append(buf, &state_r().text[row].buffer[state_r().col_offset], len);
 }
 
 
 void draw_row(int row, struct buffer* buf) {
-    if (row >= state_r().text_row_count) {
+    int real_row = row + state_r().row_offset;
+    if (real_row >= state_w()->text_row_count) {
         draw_empty_row(row, buf);
     } else {
-        draw_filled_row(row, buf);
+        draw_filled_row(real_row, buf);
     }
 }
 
@@ -108,8 +110,7 @@ void term_draw_rows(struct buffer* buf) {
     int row;
     for (row = 0; row < state_r().rows; row++) {
         draw_row(row, buf);        
-        
-       // clear line
+        // clear line
         buffer_append(buf, "\x1b[K", 3);
         if (row < state_r().rows - 1) {
             buffer_append(buf, "\r\n", 2);
@@ -117,13 +118,32 @@ void term_draw_rows(struct buffer* buf) {
     }
 }
 
+void term_scroll() {
+    if (state_r().cursor_y < state_r().row_offset) {
+        state_w()->row_offset = state_r().cursor_y;
+    }
+    if (state_r().cursor_y >= state_r().row_offset + state_r().rows) {
+        state_w()->row_offset = state_r().cursor_y - state_r().rows + 1;
+    }
+    if (state_r().cursor_x < state_r().col_offset) {
+        state_w()->col_offset = state_r().cursor_x;
+    }
+    if (state_r().cursor_x >= state_r().col_offset + state_r().cols) {
+        state_w()->col_offset = state_r().cursor_x - state_r().cols + 1;
+    }
+}
+
 void draw_cursor(struct buffer* buffer) {
     char buf[32];
-    snprintf(buf, sizeof(buf), "\x1b[%d;%dH", state_r().cursor_y + 1, state_r().cursor_x + 1);
+    snprintf(buf, sizeof(buf), "\x1b[%d;%dH", (state_r().cursor_y - state_r().row_offset) + 1, (state_r().cursor_x - state_r().col_offset) + 1);
     buffer_append(buffer, buf, strlen(buf));
 }
 
 void term_loop() {
+    term_scroll();
+
+
+
     struct buffer buffer = BUFFER_INIT;
     // hide cursor
     buffer_append(&buffer, "\x1b[?25l", 6);

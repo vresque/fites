@@ -76,41 +76,60 @@ void input_handle_exec_command(char key) {
     }
 }
 
+void check_if_cursor_x_not_too_big(int index) {
+    struct text_row* current = (index >= state_r().text_row_count) ? NULL : &state_w()->text[index];
+    if (!current) die("invalid row selected (check_if_cursor_x_not_too_big)");
+    if (current->size < state_r().cursor_x) {
+        state_w()->cursor_x = current->size;
+    }
+}
+
 void input_handle_movement(char key) {
+    struct text_row* current = (state_r().cursor_y >= state_r().text_row_count) ? NULL : &state_w()->text[state_r().cursor_y];
+
     switch (key) {
         case KEY_MOVE_LEFT:
             if (state_r().cursor_x != 0) {
                 state_w()->cursor_x--;
+            } else if (state_r().cursor_y > 0) {
+                state_w()->cursor_y--;
+                state_w()->cursor_x = state_r().text[state_r().cursor_y].size;
             }
             break;
         case KEY_MOVE_RIGHT:
-            if (state_r().cursor_x != state_r().cols - 1) {
+            if (current && state_r().cursor_x < current->size) {
                 state_w()->cursor_x++;
+            } else if (state_r().cursor_y + 1 < state_r().rows) {
+                state_w()->cursor_y++;
+                state_w()->cursor_x = 0; 
             }
             break;
         case KEY_MOVE_UP:
             if (state_r().cursor_y != 0) {
                 state_w()->cursor_y--;
             }
+            check_if_cursor_x_not_too_big(state_r().cursor_y);
             break;
         case KEY_MOVE_DOWN:
-            if (state_r().cursor_y != state_r().rows - 1) {
+            if (state_r().cursor_y < state_r().text_row_count) {
                 state_w()->cursor_y++;
             }
+            check_if_cursor_x_not_too_big(state_r().cursor_y);
             break;
         case KEY_GO_TO_END_OF_FILE:
         case KEY_GO_TO_START_OF_FILE: {
-            int how_much = state_r().rows;
+            int how_much = state_r().text_row_count;
             while (how_much--) {
                 input_handle_movement(key == KEY_GO_TO_START_OF_FILE ? KEY_MOVE_UP : KEY_MOVE_DOWN);
             }
+            state_w()->cursor_x = 0;
             break;
         }
         case KEY_GO_TO_START_OF_LINE:
             state_w()->cursor_x = 0;
             break;
         case KEY_GO_TO_END_OF_LINE:
-            state_w()->cursor_x = state_r().cols - 1;
+            state_w()->cursor_x = current->size;
             break;
     }
 }
