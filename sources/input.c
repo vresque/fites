@@ -2,6 +2,7 @@
 #include <fites/term.h>
 
 
+
 int input_read_key() {
     int read_amount;
     char key;
@@ -69,12 +70,12 @@ int input_read_key() {
     return key;
 }
 
-static int quit_times = 2;
+static int quit_times = 1;
 void input_handle_exec_command(int key) {
     switch (key) {
         case KEY_QUIT:
             if (state_r().buffer_is_dirty && quit_times > 0) {
-               editor_set_status("WARNING: You have %d unsaved changes. Press Ctrl-x Ctrl-q once more to quit.", state_r().buffer_is_dirty);
+               editor_set_status("WARNING: You have %d unsaved changes. Press C-x C-q once more to quit.", state_r().buffer_is_dirty);
                quit_times--;
                return; 
             }
@@ -190,6 +191,7 @@ void input_handle_no_mode_selected(int key) {
             editor_insert_char(key);
             break;
     }
+
 }
 
 void input_process_keypress(int key) {
@@ -201,7 +203,14 @@ void input_process_keypress(int key) {
             input_handle_no_mode_selected(key);
             break;
     }
+
     state_w()->last_key = key;
+
+    if (key != KEY_QUIT && key != KEY_EXEC) {
+        quit_times = 1;
+    }
+
+
     return;
 }
 
