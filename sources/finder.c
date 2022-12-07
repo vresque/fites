@@ -1,10 +1,18 @@
 #include <fites/finder.h>
 #include <fites/fites.h>
-
+#include <fites/highlighter.h>
 
 void find_callback(char* query, int key) {
 	static int last = -1;
 	static int dir = 1;
+	static char* original_highlight = NULL;
+	static int original_hl_line = 0;
+	
+	if (original_highlight) {
+		memcpy(state_w()->text[original_hl_line].highlight, original_highlight, state_r().text[original_hl_line].rendered_size);
+		free(original_highlight);
+		original_highlight = NULL;
+	}
 	
 	if (key == '\r' || key == '\x1b') {
 		last = -1;
@@ -35,6 +43,12 @@ void find_callback(char* query, int key) {
 			state_w()->cursor_y = current;
 			state_w()->cursor_x = text_rendered_x_to_cursor_x(row, match - row->rendered);
 			state_w()->row_offset = state_r().text_row_count;
+			
+			original_hl_line = current;
+			original_highlight = malloc(row->rendered_size);
+			memcpy(original_highlight, row->highlight, row->rendered_size);
+
+			memset(&row->highlight[match - row->rendered], HL_MATCH, strlen(query));
 			break;
 		}
 	}

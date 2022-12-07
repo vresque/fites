@@ -3,6 +3,7 @@
 #include <termios.h>
 #include "text.h"
 #include <time.h>
+#include "highlighter.h"
 #include "bool.h"
 
 struct state {
@@ -10,13 +11,14 @@ struct state {
     int last_key;
     int rows;
     int cols;
-    int cursor_x;
-    int cursor_y;
-    int text_row_count;
+    unsigned int cursor_x;
+    unsigned int cursor_y;
+    unsigned int text_row_count;
     struct text_row* text;
-    int row_offset;
-    int col_offset;
-    int rendered_x;
+    unsigned int row_offset;
+    unsigned int col_offset;
+    unsigned int rendered_x;
+    struct syntax* current_syntax;
     char* filename;
     char status[80];
     time_t status_time;

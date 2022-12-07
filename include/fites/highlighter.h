@@ -7,6 +7,13 @@
 enum highlighter {
 	HL_NORMAL = 0,
 	HL_NUMBER,
+	HL_MATCH,
+};
+
+struct syntax {
+	char* filetype;
+	char** filematch;
+	int flags;
 };
 
 void highlighter_update_syntax(struct text_row* row);

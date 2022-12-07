@@ -1,1 +1,0 @@
-Reset the quit-counter at some point, as right now, pressing C-q C-x twice at any time will quit

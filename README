@@ -5,12 +5,13 @@ Features:
     * Support for custom colour schemes (via config.h)
     * Add syntax highlighting support for your own language (via languages.h)
     * Automatic indexing of text files allowing for a kind of autocompletion
-    * Projects (.fprj)
 
 Usage:
-    * fites <file>: Opens a file in non-project mode unless there is a .fprj file present in the current directory
-    * fites <file> -p / fites <file> --project / pfites <file>: Searches parent directories for .fprj file
-    * fites -n / fites --new: initializes an .fprj
+    * fites <file>: Opens a file 
+    * If you want the auto-completor to suggest some things, just add a .f-suggest in your current directory and enter phrases which you would want to see. Those take priority over other phrases
+
+Autocompletion:
+    Autocompletion possibilities have the following order: First, your own suggestions, then suggestions from your current file and finally suggestions from other files in your current directory (of files with the same extension)
 
 F-Projects:
     * .fprj is a directory

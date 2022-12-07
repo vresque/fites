@@ -2,7 +2,7 @@ CC = gcc
 LD = gcc
 PREFIX=/usr/bin
 
-CFLAGS = -O3 -I./include -Wall -Wextra -pedantic -std=c2x -Werror
+CFLAGS = -O3 -I./include -Wall -Wextra -pedantic -std=c2x -Werror -Wno-sign-compare
 LDFLAGS = 
 
 SRCDIR := sources

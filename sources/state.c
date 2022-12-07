@@ -18,6 +18,7 @@ void state_init() {
     state->status[0] = '\0';
     state->status_time = 0;
     state->buffer_is_dirty = 0;
+    state->current_syntax = NULL;
 }
 
 

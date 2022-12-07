@@ -98,7 +98,8 @@ void term_draw_status_bar(struct buffer* buf) {
 	buffer_append(buf, "\x1b[7m", 4);
 	char status[80];
 
-	int len = snprintf(status, sizeof(status), "%.20s%s; at l%d/%d, c%d/%d;",
+	int len = snprintf(status, sizeof(status), "%s | %.40s%s; at l%d/%d, c%d/%d;",
+		state_r().current_syntax ? state_r().current_syntax->filetype : "unknown",
 		state_r().filename ? state_r().filename : "[No Name]",
 		state_r().buffer_is_dirty ? " (modified) " : "",
 		state_r().cursor_y + 1, state_r().text_row_count + 1,
