@@ -7,5 +7,5 @@
 
 
 #include "../languages.h"
-#define language_entries (sizeof(languages) / sizeof(languages[0]))
+#define LANGUAGE_ENTRIES (sizeof(languages) / sizeof(languages[0]))
 #endif

@@ -18,5 +18,5 @@ struct syntax {
 
 void highlighter_update_syntax(struct text_row* row);
 int highlighter_to_color(enum highlighter highlighter);
-
+void highlighter_select_syntax_highlight();
 #endif

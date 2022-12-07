@@ -24,6 +24,7 @@ void editor_save() {
             editor_set_status("Save aborted!");
             return;
         }
+        highlighter_select_syntax_highlight();
     }
 
     int len;
@@ -149,6 +150,7 @@ void editor_open(char* path) {
     free(state_w()->filename);
     state_w()->filename = strdup(path);
 
+    highlighter_select_syntax_highlight();
 
 
     FILE* file = fopen(path, "r");
