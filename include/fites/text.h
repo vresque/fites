@@ -8,6 +8,7 @@ struct text_row {
     char* buffer;
     int rendered_size;
     char* rendered;
+    unsigned char* highlight;
 };
 
 void text_row_insert_char(struct text_row* row, int loc, int chr);

@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <fites/term.h>
 #include <fites/input.h>
+#include <fites/highlighter.h>
 
 void editor_delete_row(int loc) {
     if (loc < 0 || loc >= state_r().text_row_count) return;
@@ -104,6 +105,8 @@ void editor_update_row(struct text_row* row) {
     }
     row->rendered[index] = '\0';
     row->rendered_size = index;
+
+    highlighter_update_syntax(row);
 }
 
 void editor_push_row(int loc, char* content, size_t len) {
@@ -119,6 +122,7 @@ void editor_push_row(int loc, char* content, size_t len) {
 
     state_w()->text[loc].rendered_size = 0;
     state_w()->text[loc].rendered = NULL;
+    state_w()->text[loc].highlight = NULL;
     editor_update_row(&state_w()->text[loc]);
 
 

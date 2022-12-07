@@ -5,4 +5,6 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 #include "../config.h"
+#include "../languages.h"
+#include "../color.h"
 #endif

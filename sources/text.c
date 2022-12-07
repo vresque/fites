@@ -65,4 +65,5 @@ char* text_rows_to_string(int* len) {
 void text_row_drop(struct text_row* row) {
 	free(row->rendered);
 	free(row->buffer);
+	free(row->highlight);
 }

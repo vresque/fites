@@ -1,5 +1,6 @@
 #include <fites/term.h>
 #include <sys/ioctl.h>
+#include <fites/highlighter.h>
 #include <fites/input.h>
 
 void get_cursor_position(int* rows, int* cols) {
@@ -146,16 +147,20 @@ void draw_filled_row(int row, struct buffer* buf) {
 	if (len >= state_r().cols) len = state_r().cols;
 
 	char* c = &state_w()->text[row].rendered[state_r().col_offset];
+	unsigned char* h = &state_w()->text[row].highlight[state_r().col_offset];
+	int current = -1;
 	int j;
 	for (j = 0; j < len; j++) {
-		if (isdigit(c[j])) {
-			buffer_append(buf, "\x1b[31m", 5);
-			buffer_append(buf, &c[j], 1);
-			buffer_append(buf, "\x1b[39m", 5);
-		} else {
-			buffer_append(buf, &c[j], 1);
+		int color = highlighter_to_color(h[j]);
+		if (color != current) {
+			char col_buf[16];
+			int clen = snprintf(col_buf, sizeof(buf), "\x1b[%dm", color);
+			buffer_append(buf, col_buf, clen);
+			current = color;
 		}
+		buffer_append(buf, &c[j], 1);
 	}
+	buffer_append(buf, "\x1b[39m", 5);
 
 
 }
