@@ -4,9 +4,26 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <fcntl.h>
+#include <fites/term.h>
+#include <fites/input.h>
+
+void editor_delete_row(int loc) {
+    if (loc < 0 || loc >= state_r().text_row_count) return;
+    text_row_drop(&state_w()->text[loc]);
+    memmove(&state_w()->text[loc], &state_r().text[loc + 1], sizeof(struct text_row) * (state_r().rows - loc - 1));
+    state_w()->rows--;
+    state_w()->rows++;
+}
+
 
 void editor_save() {
-    if (state_r().filename == NULL) return;
+    if (state_r().filename == NULL) {
+        state_w()->filename = editor_prompt("Enter filename for new file: %s (ESC to cancel)");
+        if (state_r().filename == NULL) {
+            editor_set_status("Save aborted!");
+            return;
+        }
+    }
 
     int len;
     char* buf = text_rows_to_string(&len);
@@ -33,7 +50,7 @@ void editor_insert_char(int chr) {
 
 
     if (state_r().cursor_y == state_r().text_row_count) {
-        editor_push_row("", 0);
+        editor_push_row(state_r().text_row_count, "", 0);
     }
     text_row_insert_char(&state_w()->text[state_r().cursor_y], state_r().cursor_x, chr);
     state_w()->cursor_x++;
@@ -41,6 +58,21 @@ void editor_insert_char(int chr) {
 
 }
 
+void editor_delete_char() {
+    if (state_r().cursor_y == state_r().rows) return;
+    if (state_r().cursor_x == 0 && state_r().cursor_y == 0) return;
+
+    struct text_row* row = &state_w()->text[state_r().cursor_y];
+    if (state_r().cursor_x > 0) {
+        text_row_delete_char(row, state_r().cursor_x - 1);
+        state_w()->cursor_x--;
+    } else {
+        state_w()->cursor_x = state_r().text[state_r().cursor_y - 1].size;
+        text_row_append_string(&state_w()->text[state_r().cursor_y - 1], row->buffer, row->size);
+        editor_delete_row(state_r().cursor_y);
+        state_w()->cursor_y--;
+    }
+}
 
 void editor_set_status(const char* fmt, ...) {
     va_list ap;
@@ -74,10 +106,12 @@ void editor_update_row(struct text_row* row) {
     row->rendered_size = index;
 }
 
-void editor_push_row(char* content, size_t len) {
-    state_w()->text = realloc(state_w()->text, sizeof(struct text_row) * (state_r().text_row_count + 1));
+void editor_push_row(int loc, char* content, size_t len) {
+    if (loc < 0 || loc > state_r().text_row_count) return;
 
-    int loc = state_r().text_row_count;
+    state_w()->text = realloc(state_w()->text, sizeof(struct text_row) * (state_r().text_row_count + 1));
+    memmove(&state_w()->text[loc + 1], &state_w()->text[loc], sizeof(struct text_row) * (state_r().text_row_count - loc));
+
     state_w()->text[loc].size = len;
     state_w()->text[loc].buffer = malloc(len + 1);
     memcpy(state_w()->text[loc].buffer, content, len);
@@ -90,6 +124,21 @@ void editor_push_row(char* content, size_t len) {
 
     state_w()->text_row_count++;
     state_w()->buffer_is_dirty++;
+}
+
+void editor_insert_new_line() {
+    if (state_r().cursor_x == 0) {
+        editor_push_row(state_r().cursor_y, "", 0);
+    } else {
+        struct text_row* row = &state_w()->text[state_r().cursor_y];
+        editor_push_row(state_r().cursor_y + 1, &row->buffer[state_r().cursor_x], row->size - state_r().cursor_x);
+        row = &state_w()->text[state_r().cursor_y];
+        row->size = state_r().cursor_x;
+        row->buffer[row->size] = '\0';
+        editor_update_row(row);
+    }
+    state_w()->cursor_y++;
+    state_w()->cursor_x = 0;
 }
 
 void editor_open(char* path) {
@@ -110,10 +159,45 @@ void editor_open(char* path) {
     ssize_t len;
     while ((len = getline(&line, &cap, file)) != -1) {
         while (len > 0 && (line[len - 1] == '\n' || line [len - 1] == '\r')) len--;
-        editor_push_row(line, len);
+        editor_push_row(state_r().text_row_count, line, len);
     }
     free(line);
     fclose(file);
 
     state_w()->buffer_is_dirty = 0;
+}
+
+char* editor_prompt(char* prompt) {
+    size_t bufsize = 128;
+    char* buf = malloc(bufsize);
+
+    size_t buflen = 0;
+    buf[0] = '\0';
+
+    while (1) {
+        editor_set_status(prompt, buf);
+        term_loop();
+
+        int c = input_read_key();
+        
+        if (c == KEY_DELETE || c == 127) {
+            if (buflen != 0) buf[--buflen] = '\0';
+        } else if (c == '\x1b') {
+            editor_set_status("");
+            free(buf);
+            return NULL;
+        } else if (c == '\r') {
+            if (buflen != 0) {
+                editor_set_status("");
+                return buf;
+            }
+        } else if (!iscntrl(c) && c < 128) {
+            if (buflen == bufsize - 1) {
+                bufsize *= 2;
+                buf = realloc(buf, bufsize);
+            }
+            buf[buflen++] = c;
+            buf[buflen] = '\0';
+        }
+    }
 }

@@ -4,6 +4,12 @@
 
 void get_cursor_position(int* rows, int* cols) {
 	UNUSED(rows)
+	UNUSED(rows)
+	UNUSED(rows)
+	UNUSED(rows)
+	UNUSED(rows)
+	UNUSED(rows)
+	UNUSED(rows)
 	UNUSED(cols)
 	char buffer[32];
 	unsigned int index = 0;
@@ -90,11 +96,12 @@ void term_draw_message_bar(struct buffer* buf) {
 void term_draw_status_bar(struct buffer* buf) {
 	buffer_append(buf, "\x1b[7m", 4);
 	char status[80];
+
 	int len = snprintf(status, sizeof(status), "%.20s%s; at l%d/%d, c%d/%d;",
 		state_r().filename ? state_r().filename : "[No Name]",
 		state_r().buffer_is_dirty ? " (modified) " : "",
 		state_r().cursor_y + 1, state_r().text_row_count + 1,
-		state_r().cursor_x + 1, state_r().text[state_r().cursor_y].size + 1
+		state_r().cursor_x + 1, state_r().text ? state_r().text[state_r().cursor_y].size + 1 : 0
 	);
 	if (len > state_r().cols) len = state_r().cols;
 	int index = 0;
@@ -200,6 +207,7 @@ void term_loop() {
 	term_draw_rows(&buffer);
 	term_draw_status_bar(&buffer);
 	term_draw_message_bar(&buffer);
+
 
 	// show cursor
 	draw_cursor(&buffer);

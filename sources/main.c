@@ -19,7 +19,6 @@ int main(int argc, char** argv) {
     if (argc >= 2) {
         editor_open(argv[1]);
     }
-
     enable_raw_mode();
     main_loop();
     return 0;

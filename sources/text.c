@@ -1,5 +1,23 @@
 #include <fites/text.h>
 #include <fites/editor.h>
+#include <fites/fites.h>
+
+void text_row_append_string(struct text_row* row, char* string, size_t length) {
+	row->buffer = realloc(row->buffer, row->size + length + 1);
+	memcpy(&row->buffer[row->size], string, length);
+	row->size += length;
+	row->buffer[row->size] = '\0';
+	editor_update_row(row);
+	state_w()->buffer_is_dirty++;
+}
+
+void text_row_delete_char(struct text_row* row, int loc) {
+    if (loc < 0 || loc >= row->size) return;
+    memmove(&row->buffer[loc], &row->buffer[loc + 1], row->size - loc);
+    row->size--;
+    editor_update_row(row);
+    state_w()->buffer_is_dirty++;
+}
 
 void text_row_insert_char(struct text_row* row, int loc, int chr) {
 	if (loc < 0 || loc > row->size) loc = row->size;
@@ -28,4 +46,10 @@ char* text_rows_to_string(int* len) {
 	}
 
 	return buf;
+}
+
+
+void text_row_drop(struct text_row* row) {
+	free(row->rendered);
+	free(row->buffer);
 }

@@ -3,7 +3,9 @@ Fites - The fast, interactive, and trusty editing software
 Features:
     * Full keyboard layout customization (via config.h)
     * Support for custom colour schemes (via config.h)
-    * Add syntax support for your own language (via languages.h)
+    * Add syntax highlighting support for your own language (via languages.h)
+    * Automatic indexing of text files allowing for a kind of autocompletion
+    * Projects (.fprj)
 
 Credits:
     * Most of the core logic is taken from this blog: https://viewsourcecode.org/snaptoken/kilo

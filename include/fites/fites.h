@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <stddef.h>
 #include <stdio.h>
 #include "state.h"
 #include "buffer.h"

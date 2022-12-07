@@ -177,10 +177,15 @@ void input_handle_no_mode_selected(int key) {
             input_handle_movement(key);
             break;
         case 127:            // backspace
+            editor_delete_char();
+            break;
         case KEY_DELETE:
+            input_handle_movement(KEY_MOVE_RIGHT);
+            editor_delete_char();
             break;
         case '\r':
             // enter
+            editor_insert_new_line();
             break;
         case CONTROL('l'):
         case '\x1b':
