@@ -36,6 +36,7 @@ void editor_save() {
                 close(fd);
                 free(buf);
                 editor_set_status("Saved %s; %d bytes written", state_r().filename, len);
+                state_w()->buffer_is_dirty = 0;
                 return;
             }
         }
@@ -43,7 +44,6 @@ void editor_save() {
     }
     free(buf);
     editor_set_status("Unable to save %s! I/O error: %s", state_r().filename, strerror(errno));
-    state_w()->buffer_is_dirty = 0;
 }
 void editor_insert_char(int chr) {
     if (!(chr >= 0x20 && chr <= 0x7e)) return;

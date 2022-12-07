@@ -148,7 +148,13 @@ void draw_filled_row(int row, struct buffer* buf) {
 	char* c = &state_w()->text[row].rendered[state_r().col_offset];
 	int j;
 	for (j = 0; j < len; j++) {
-		if (isdigit(c[j])) {}
+		if (isdigit(c[j])) {
+			buffer_append(buf, "\x1b[31m", 5);
+			buffer_append(buf, &c[j], 1);
+			buffer_append(buf, "\x1b[39m", 5);
+		} else {
+			buffer_append(buf, &c[j], 1);
+		}
 	}
 
 
