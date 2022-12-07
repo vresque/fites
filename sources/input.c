@@ -85,6 +85,9 @@ void input_handle_exec_command(int key) {
         case KEY_SAVE:
             editor_save();
             break;
+        case KEY_FIND:
+            find();
+            break;
     }
 }
 

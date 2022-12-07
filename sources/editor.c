@@ -201,3 +201,42 @@ char* editor_prompt(char* prompt) {
         }
     }
 }
+
+char* editor_prompt_with_callback(char* prompt, editor_prompt_callback_t callback) {
+    size_t bufsize = 128;
+    char* buf = malloc(bufsize);
+
+    size_t buflen = 0;
+    buf[0] = '\0';
+
+    while (1) {
+        editor_set_status(prompt, buf);
+        term_loop();
+
+        int c = input_read_key();
+        
+        if (c == KEY_DELETE || c == 127) {
+            if (buflen != 0) buf[--buflen] = '\0';
+        } else if (c == '\x1b') {
+            editor_set_status("");
+            if (callback) callback(buf, c);
+            free(buf);
+            return NULL;
+        } else if (c == '\r') {
+            if (buflen != 0) {
+                editor_set_status("");
+                if (callback) callback(buf, c);
+                return buf;
+            }
+        } else if (!iscntrl(c) && c < 128) {
+            if (buflen == bufsize - 1) {
+                bufsize *= 2;
+                buf = realloc(buf, bufsize);
+            }
+            buf[buflen++] = c;
+            buf[buflen] = '\0';
+        }
+
+        if (callback) callback(buf, c);
+    }
+}

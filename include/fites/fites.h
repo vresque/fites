@@ -11,8 +11,13 @@
 #include "state.h"
 #include "buffer.h"
 #include "editor.h"
+#include "finder.h"
 
 #define VERSION "1.0"
+
+#define CONTROL(key) ((key) & 0x1f)
+#define ALT(key) ((key) + 128)
+
 
 #define UNUSED(var) ((void)(var));
 

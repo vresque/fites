@@ -2,6 +2,19 @@
 #include <fites/editor.h>
 #include <fites/fites.h>
 
+int text_rendered_x_to_cursor_x(struct text_row* row, int ren_x) {
+	int cur_rx = 0;
+	int cursor_x;
+	for (cursor_x = 0; cursor_x < row->size; cursor_x++) {
+		if (row->buffer[cursor_x] == '\t')
+			cur_rx += (TAB_SIZE - 1) - (cur_rx % TAB_SIZE);
+		cur_rx++;
+
+		if (cur_rx > ren_x) return cursor_x;
+	}
+	return cursor_x;
+}
+
 void text_row_append_string(struct text_row* row, char* string, size_t length) {
 	row->buffer = realloc(row->buffer, row->size + length + 1);
 	memcpy(&row->buffer[row->size], string, length);

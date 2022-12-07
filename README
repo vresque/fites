@@ -7,6 +7,19 @@ Features:
     * Automatic indexing of text files allowing for a kind of autocompletion
     * Projects (.fprj)
 
+Usage:
+    * fites <file>: Opens a file in non-project mode unless there is a .fprj file present in the current directory
+    * fites <file> -p / fites <file> --project / pfites <file>: Searches parent directories for .fprj file
+    * fites -n / fites --new: initializes an .fprj
+
+F-Projects:
+    * .fprj is a directory
+    * in it, there are two files:
+            * SUGGEST
+                - This file contains *custom* suggestions. They will always take priority over indexed items. This file is managed by the user.
+            * INDEX
+                - This file is managed by the editor and indexes all of the files in order to get an overview over everything
+
 Credits:
     * Most of the core logic is taken from this blog: https://viewsourcecode.org/snaptoken/kilo
       So, you may imagine this project as the kilo editor if it had taken enough steroids to wipe out Austria's population

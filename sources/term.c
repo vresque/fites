@@ -144,7 +144,14 @@ void draw_filled_row(int row, struct buffer* buf) {
 	int len = state_r().text[row].rendered_size - state_r().col_offset;
 	if (len < 0) len = 0;
 	if (len >= state_r().cols) len = state_r().cols;
-	buffer_append(buf, &state_r().text[row].rendered[state_r().col_offset], len);
+
+	char* c = &state_w()->text[row].rendered[state_r().col_offset];
+	int j;
+	for (j = 0; j < len; j++) {
+		if (isdigit(c[j])) {}
+	}
+
+
 }
 
 

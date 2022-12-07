@@ -34,6 +34,7 @@
 #define KEY_EXEC CONTROL('x')
 #define KEY_QUIT CONTROL('q')
 #define KEY_SAVE CONTROL('s')
+#define KEY_FIND CONTROL('f')
 
 
 // editing
