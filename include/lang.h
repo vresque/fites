@@ -2,9 +2,6 @@
 #define LANG_H
 
 #include "fites/highlighter.h"
-#define HL_HIGHLIGHT_NUMBERS (1 << 0)
-#define HL_HIGHLIGHT_UNDERSCORED_NUMBERS (1 << 1)
-
 
 #include "../languages.h"
 #define LANGUAGE_ENTRIES (sizeof(languages) / sizeof(languages[0]))

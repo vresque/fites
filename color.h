@@ -2,3 +2,5 @@
 #define COLOR_DEFAULT 37
 #define COLOR_NORMAL 39
 #define COLOR_MATCH 34
+#define COLOR_STRING 35
+#define COLOR_COMMENT 36
