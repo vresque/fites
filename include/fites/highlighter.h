@@ -10,6 +10,8 @@ enum highlighter {
 	HL_MATCH,
 	HL_STRING,
 	HL_COMMENT,
+	HL_TYPE,
+	HL_KEYWORD,
 };
 
 struct syntax {
@@ -17,6 +19,8 @@ struct syntax {
 	char** filematch;
 	int flags;
 	char* line_comment;
+	char** keywords;
+	char** types;
 };
 
 void highlighter_update_syntax(struct text_row* row);

@@ -36,6 +36,8 @@ int highlighter_to_color(enum highlighter highlighter) {
 		case HL_MATCH: return COLOR_MATCH;
 		case HL_STRING: return COLOR_STRING;
 		case HL_COMMENT: return COLOR_COMMENT;
+		case HL_TYPE: return COLOR_TYPE;
+		case HL_KEYWORD: return COLOR_KEYWORD;
 		default: return COLOR_NORMAL;
 	}
 	return -1;
@@ -54,6 +56,8 @@ void highlighter_update_syntax(struct text_row* row) {
 	char* comment = state_r().current_syntax->line_comment;
 	int comment_length = comment ? strlen(comment) : 0;
 
+	char** keywords = state_r().current_syntax->keywords;
+	char** types = state_r().current_syntax->types;
 
 	int last_separator = 1;
 	int in_string = 0;
@@ -112,6 +116,39 @@ void highlighter_update_syntax(struct text_row* row) {
 			last_separator = 0;
 			continue;
 		}
+
+		if (last_separator) {
+			int j = 0;
+			for (j = 0; keywords[j]; j++) {
+				int len = strlen(keywords[j]);
+				
+				if (!strncmp(&row->rendered[i], keywords[j], len) &&
+					is_separator(row->rendered[i + len])) {
+						memset(&row->highlight[i], HL_KEYWORD, len);
+						i += len;
+						break;
+					}
+			}
+
+			for (j = 0; types[j]; j++) {
+				int len = strlen(types[j]);
+				
+				if (!strncmp(&row->rendered[i], types[j], len) &&
+					is_separator(row->rendered[i + len])) {
+						memset(&row->highlight[i], HL_TYPE, len);
+						i += len;
+						break;
+					}
+			}
+
+
+			if (keywords[j] != NULL) {
+				last_separator = 0;
+				continue;
+			}
+		}
+
+
 		last_separator = is_separator(this);
 		i++;
 	}

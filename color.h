@@ -4,3 +4,5 @@
 #define COLOR_MATCH 34
 #define COLOR_STRING 35
 #define COLOR_COMMENT 36
+#define COLOR_TYPE 33
+#define COLOR_KEYWORD 32
