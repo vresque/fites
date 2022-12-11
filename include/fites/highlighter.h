@@ -21,6 +21,7 @@ struct syntax {
 	char* line_comment;
 	char** keywords;
 	char** types;
+	char** multiline_comment;
 };
 
 void highlighter_update_syntax(struct text_row* row);

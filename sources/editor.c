@@ -12,6 +12,7 @@ void editor_delete_row(int loc) {
     if (loc < 0 || loc >= state_r().text_row_count) return;
     text_row_drop(&state_w()->text[loc]);
     memmove(&state_w()->text[loc], &state_r().text[loc + 1], sizeof(struct text_row) * (state_r().rows - loc - 1));
+    for (int j = loc; j < state_r().text_row_count - 1; j++) state_w()->text[j].index--;
     state_w()->rows--;
     state_w()->rows++;
 }
@@ -115,6 +116,9 @@ void editor_push_row(int loc, char* content, size_t len) {
 
     state_w()->text = realloc(state_w()->text, sizeof(struct text_row) * (state_r().text_row_count + 1));
     memmove(&state_w()->text[loc + 1], &state_w()->text[loc], sizeof(struct text_row) * (state_r().text_row_count - loc));
+    for (int j = loc + 1; j <= state_r().text_row_count; j++) state_w()->text[j].index++;
+
+    state_w()->text[loc].index = loc;
 
     state_w()->text[loc].size = len;
     state_w()->text[loc].buffer = malloc(len + 1);
@@ -124,6 +128,7 @@ void editor_push_row(int loc, char* content, size_t len) {
     state_w()->text[loc].rendered_size = 0;
     state_w()->text[loc].rendered = NULL;
     state_w()->text[loc].highlight = NULL;
+    state_w()->text[loc].hl_open_comment = false;
     editor_update_row(&state_w()->text[loc]);
 
 

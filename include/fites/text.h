@@ -1,6 +1,7 @@
 #ifndef TEXT_H
 #define TEXT_H
 #include <stddef.h>
+#include <fites/bool.h>
 
 
 struct text_row {
@@ -9,6 +10,8 @@ struct text_row {
     int rendered_size;
     char* rendered;
     unsigned char* highlight;
+    int index;
+    bool hl_open_comment;
 };
 
 void text_row_insert_char(struct text_row* row, int loc, int chr);

@@ -3,6 +3,7 @@
 #include <fites/highlighter.h>
 #include <fites/input.h>
 
+
 void get_cursor_position(int* rows, int* cols) {
 	UNUSED(rows)
 	UNUSED(rows)
@@ -26,6 +27,8 @@ void get_cursor_position(int* rows, int* cols) {
 
 	if (buffer[0] != '\x1b' || buffer[1] != '[') die("bad buffer format (get_cursor_position)");
    // Clang is annoying here
+#pragma GCC diagnostic push
+#pragma GCC diagnostic push
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wint-conversion"
 	if (sscanf(&buffer[2], "%d;%d", rows, cols) != 2) die("failed to read position from buffer (get_cursor_position)");
@@ -152,14 +155,33 @@ void draw_filled_row(int row, struct buffer* buf) {
 	int current = -1;
 	int j;
 	for (j = 0; j < len; j++) {
-		int color = highlighter_to_color(h[j]);
-		if (color != current) {
-			char col_buf[16];
-			int clen = snprintf(col_buf, sizeof(buf), "\x1b[%dm", color);
-			buffer_append(buf, col_buf, clen);
-			current = color;
+		if (iscntrl(c[j])) {
+			char sym = (c[j] <= 26) ? '@' + c[j] : '?';
+			buffer_append(buf, "\x1b[7m", 4);
+			buffer_append(buf, &sym, 1);
+			buffer_append(buf, "\x1b[m", 3);
+			if (current != -1) {
+				char buffer[16];
+				int len = snprintf(buffer, sizeof(buf), "\x1b[%dm", current);
+				buffer_append(buf, buffer, len);
+			}
+
+		} else if (h[j] == HL_NORMAL) {
+			if (current != -1) {
+				buffer_append(buf, "\x1b[39m", 5);
+				current = -1;
+			}
+			buffer_append(buf, &c[j], 1);
+		} else {
+ 			int color = highlighter_to_color(h[j]);
+			if (color != current) {
+				char col_buf[16];
+				int clen = snprintf(col_buf, sizeof(buf), "\x1b[%dm", color);
+				buffer_append(buf, col_buf, clen);
+				current = color;
+			}
+			buffer_append(buf, &c[j], 1);
 		}
-		buffer_append(buf, &c[j], 1);
 	}
 	buffer_append(buf, "\x1b[39m", 5);
 

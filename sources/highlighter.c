@@ -1,6 +1,7 @@
 #include <fites/highlighter.h>
 #include <ctype.h>
 #include <lang.h>
+#include <fites/bool.h>
 
 void highlighter_select_syntax_highlight() {
 	state_w()->current_syntax = NULL;
@@ -55,22 +56,51 @@ void highlighter_update_syntax(struct text_row* row) {
 
 	char* comment = state_r().current_syntax->line_comment;
 	int comment_length = comment ? strlen(comment) : 0;
+	
+	int has_ml_comments = state_r().current_syntax->flags & HL_HAS_MULTILINE_COMMENT;
+	char* multi_start = has_ml_comments ? state_r().current_syntax->multiline_comment[0] : NULL; 
+	char* multi_end = has_ml_comments ? state_r().current_syntax->multiline_comment[1] : NULL; 
+	int mul_sta_len = multi_start ? strlen(multi_start) : 0;
+	int mul_end_len = multi_end ? strlen(multi_end) : 0;
 
 	char** keywords = state_r().current_syntax->keywords;
 	char** types = state_r().current_syntax->types;
 
 	int last_separator = 1;
-	int in_string = 0;
+	bool in_string = false;
+	bool in_comment = (row->index > 0 && state_r().text[row->index - 1].hl_open_comment);;
+
 	int i = 0;
 	while (i < row->rendered_size) {
 		char this = row->rendered[i];
 		unsigned char last_highlight = (i > 0) ? row->highlight[i - 1] : HL_NORMAL;
 		int flags = state_r().current_syntax->flags;
 
-		if (comment_length && !in_string) {
+		if (comment_length && !in_string && !in_comment) {
 			if (!strncmp(&row->rendered[i], comment, comment_length)) {
 				memset(&row->highlight[i], HL_COMMENT, row->rendered_size - i);
 				break;
+			}
+		}
+
+		if (mul_sta_len && mul_end_len && !in_string) {
+			if (in_comment) {
+				row->highlight[i] = HL_COMMENT;
+				if (!strncmp(&row->rendered[i], multi_end, mul_end_len)) {
+					memset(&row->highlight[i], HL_COMMENT, mul_end_len);
+					i += mul_end_len;
+					in_comment = false;
+					last_separator = 1;
+					continue;
+				} else  {
+					i++;
+					continue;
+				}
+			} else if (!strncmp(&row->rendered[i], multi_start, mul_sta_len)) {
+				memset(&row->highlight[i], HL_COMMENT, mul_sta_len);
+				i += mul_sta_len;
+				in_comment = true;
+				continue;
 			}
 		}
 
