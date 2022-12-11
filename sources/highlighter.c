@@ -68,7 +68,7 @@ void highlighter_update_syntax(struct text_row* row) {
 
 	int last_separator = 1;
 	bool in_string = false;
-	bool in_comment = (row->index > 0 && state_r().text[row->index - 1].hl_open_comment);;
+	bool in_comment = (row->index > 0 && state_r().text[row->index - 1].hl_open_comment);
 
 	int i = 0;
 	while (i < row->rendered_size) {
@@ -182,4 +182,8 @@ void highlighter_update_syntax(struct text_row* row) {
 		last_separator = is_separator(this);
 		i++;
 	}
+
+	int change = (row->hl_open_comment != in_comment);
+	row->hl_open_comment = in_comment;
+	if (change && row->index + 1 < state_r().text_row_count) highlighter_update_syntax(&state_w()->text[row->index + 1]);
 }

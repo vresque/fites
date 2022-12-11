@@ -3,7 +3,6 @@
 #include <fites/highlighter.h>
 #include <fites/input.h>
 
-
 void get_cursor_position(int* rows, int* cols) {
 	UNUSED(rows)
 	UNUSED(rows)
@@ -26,6 +25,10 @@ void get_cursor_position(int* rows, int* cols) {
 	buffer[index] = '\0';
 
 	if (buffer[0] != '\x1b' || buffer[1] != '[') die("bad buffer format (get_cursor_position)");
+   // Clang is annoying here
+   // Clang is annoying here
+   // Clang is annoying here
+   // Clang is annoying here
    // Clang is annoying here
 #pragma GCC diagnostic push
 #pragma GCC diagnostic push
